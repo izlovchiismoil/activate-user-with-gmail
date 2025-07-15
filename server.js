@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import {sequelize} from "./models/indexModel.js";
 
 import authRouter from "./routes/authRoute.js";
 const app = express();
@@ -19,9 +20,6 @@ app.use(cors({
     origin: [process.env.CLIENT_URL],
     credentials: true
 }));
-
-
-import {sequelize} from "./models/indexModel.js";
 
 sequelize.sync({alter: true}).then(() => {
     console.log("Connected to database successfully!");
