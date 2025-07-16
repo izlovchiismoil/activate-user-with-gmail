@@ -1,4 +1,4 @@
-# User Email Activation API with Node.js, Sequelize, PostgreSQL & Docker
+# User Email Activation API with Node.js, Sequelize, PostgreSQL, Docker, Swagger
 
 This project is a minimal authentication API built with **Node.js**, using **Sequelize ORM** and **PostgreSQL** as the database. It allows user registration and login via email, with account activation through **Gmail-based verification links**. The entire application is containerized using **Docker Compose**.
 
@@ -31,15 +31,20 @@ This project is a minimal authentication API built with **Node.js**, using **Seq
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/izlovchiismoil/activate-user-with-gmail.git
+cd activate-user-with-gmail
 
-
-## Run docker
+```
+### 2. Run docker
 docker-compose up --build
+
+### 3. Open swagger-ui http://localhost:3001/api/v1/api-docs
+
+
+### Useful information
 
 ## API documentation URL by POSTMAN documentation
 API documentation URL: https://documenter.getpostman.com/view/31631767/2sB34hH1kQ
 
-## Activate user by link
+## Activate user by link screenshot
 <img width="1920" height="1024" alt="{BC7172EB-5588-411C-9C84-9D59FC88CAAE}" src="https://github.com/user-attachments/assets/2f956f13-4faf-49ab-a2f1-818c8e2085f7" />
