@@ -19,13 +19,13 @@ export async function loginUser (req, res) {
             raw: true
         });
         if (!user) {
-            return res.status(404).json({
+            return res.status(400).json({
                 success: false,
                 error: "Invalid credentials"
             });
         }
         if (!user.isActive) {
-            return res.status(400).json({
+            return res.status(403).json({
                 success: false,
                 error: "Account not activated. Please check your email."
             });
@@ -76,7 +76,7 @@ export async function registerUser (req, res) {
         }
         requestData.password = await bcrypt.hash(requestData.password, 10);
         const createdUser = await models.user.create(requestData);
-        const activationToken = jwt.sign({userId: createdUser.id}, process.env.JWT_ACTIVATION_SECRET, {
+        const activationToken = jwt.sign({userId: createdUser.id, email: createdUser.email}, process.env.JWT_ACTIVATION_SECRET, {
             expiresIn: process.env.JWT_ACTIVATION_EXPIRE
         });
         const activationLink = `${process.env.CLIENT_URL}/auth/activate/${activationToken}`;
@@ -155,32 +155,38 @@ export async function activateUser (req, res) {
 }
 
 export async function resendActivation(req, res) {
-    const { email } = req.body;
-
-    const user = await models.user.findOne({ where: { email } });
-    if (!user) {
-        return res.status(404).json({ success: false, error: "User not found" });
+    const { activateToken } = req.body;
+    if (!activateToken) {
+        return res.status(400).json({
+            success: false,
+            error: "Token param required"
+        });
     }
-
-    if (user.isActive) {
-        return res.status(400).json({ success: false, error: "User already activated" });
+    let decoded;
+    try {
+        decoded = jwt.verify(activateToken, process.env.JWT_ACTIVATION_SECRET);
     }
-
-    const activationToken = jwt.sign(
-        { userId: user.id },
-        process.env.JWT_ACTIVATION_SECRET,
-        { expiresIn: process.env.JWT_ACTIVATION_EXPIRE }
-    );
-
-    const activationLink = `${process.env.CLIENT_URL}/auth/activate/${activationToken}`;
-
-    await sendEmail(user.email, "New Activation Link", `
-    <p>Your old link expired. Click the new link below to activate your account:</p>
-    <a href="${activationLink}">Activate</a>
-  `);
-
-    return res.status(200).json({
-        success: true,
-        message: "New activation link sent to your email.",
-    });
+    catch (err) {
+        if (err.name === "TokenExpiredError") {
+            const payload = jwt.decode(activateToken);
+            const user = await models.user.findByPk(payload.userId);
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    error: "User not found"
+                });
+            }
+            const newActivateToken = jwt.sign({userId: user.id, email: user.email}, process.env.JWT_ACTIVATION_SECRET, {
+                expiresIn: process.env.JWT_ACTIVATION_EXPIRE
+            });
+            return res.status(200).json({
+                success: true,
+                activateToken: newActivateToken
+            });
+        }
+        return res.status(400).json({
+            success: false,
+            error: "Invalid token",
+        });
+    }
 }

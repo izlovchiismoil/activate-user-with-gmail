@@ -1,0 +1,116 @@
+openapi: 3.0.0
+info:
+  title: Activate user by gmail
+  version: 1.0.0
+  description: Swagger YAML document
+servers:
+  - url: http://localhost:3001
+
+paths:
+  /api/v1/auth/register:
+    post:
+      summary: Registration
+      tags:
+        - Registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                      example: "Ismoil"
+                    email:
+                      type: string
+                      example: test@example.com
+                    password:
+                      type: string
+                      example: 1234567
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: User params invalid
+        "409":
+          description: User already exist
+        "500":
+          description: Server error
+
+
+  /api/v1/auth/login:
+    post:
+      summary: Login
+      tags:
+        - Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: test@example.com
+                    password:
+                      type: string
+                      example: 1234567
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid credentials
+        "403":
+          description: Account not activated. Please check your email
+        "500":
+          description: Server error
+
+  /api/v1/auth/activate/{token}:
+    get:
+      summary: Activate by link
+      tags:
+        - Activate by link
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Activation token
+
+      responses:
+        "200":
+          description: User has been activated successfully!
+        "400":
+          description: This link not valid
+        "410":
+          description: Activation link has been expired
+        "500":
+          description: Server error
+
+  /api/v1/auth/resend-activation:
+    post:
+      summary: reactivation
+      tags:
+        - Reactivation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                activateToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+      responses:
+        "200":
+          description: OK

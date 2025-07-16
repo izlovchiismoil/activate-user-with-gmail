@@ -9,7 +9,6 @@ import {checkRegistrUser} from "../middlewares/authMiddleware.js";
 import {registrUserSchema} from "../middlewares/schemas.js";
 const authRouter = Router();
 
-
 authRouter.post("/login", loginUser);
 authRouter.post("/register", checkRegistrUser(registrUserSchema), registerUser);
 authRouter.get("/activate/:token", activateUser);
